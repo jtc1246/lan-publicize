@@ -14,7 +14,7 @@ PASSWORD = 'JTC'
 
 CHECKS_PER_SECOND = 50
 CHECH_UPDATE_TIMEOUT = 2
-RETRT_TIMEOUT_FUNC = lambda x: min(1.0, 0.7 + x * 0.3)
+RETRT_TIMEOUT_FUNC = lambda x: max(1.5, 0.8 + x**2 * 0.15)
 
 
 class IdService:
