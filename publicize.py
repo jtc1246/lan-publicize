@@ -1,6 +1,6 @@
 from curl_http import curl_http_get, curl_http_post
 import socket
-from myBasics import binToBase64, base64ToBin
+from myBasics import binToBase64, base64ToBin  # pip install myBasics
 from threading import Lock
 from _thread import start_new_thread
 import time

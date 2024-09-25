@@ -4,7 +4,7 @@ from threading import Lock
 from _thread import start_new_thread
 from queue import Queue
 from time import sleep
-from myBasics import binToBase64, base64ToBin
+from myBasics import binToBase64, base64ToBin  # pip install myBasics
 import json
 
 
