@@ -14,7 +14,7 @@ Note: `PUBLIC_PORT` is the port other people visit, `INNER_PORT` is used for LAN
 
 ### LAN device
 
-Set the `PASSWORD`, `SERVER`, `IP` and `PORT` in `publicize.py`, and then run `publicize.py`.
+Set the `PASSWORD`, `SERVER`, `IP` and `PORT` in `publicize.py`, and then run `publicize.py`. Need to include both `publicize.py` and `curl_http.py` files.
 
 Note: `PASSWORD` should be the same as the server, `SERVER` is a http(s) url, that can be visited by this device, `IP` and `PORT` are the ip and port that will forward to.
 
