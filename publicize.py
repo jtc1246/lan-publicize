@@ -125,6 +125,7 @@ def retry_prev_blocks():
         if (i in retrying_blocks or i in forward_waiting_blocks):
             continue
         start_new_thread(retry_one_block, (i,))
+        retrying_blocks.add(i)
 
 
 def check_forward_update():
