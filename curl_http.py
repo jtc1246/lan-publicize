@@ -3,6 +3,7 @@ import json
 from typing import Tuple
 from subprocess import DEVNULL
 import traceback
+from secrets import token_hex
 
 
 def is_ascii(s: str) -> bool:
@@ -30,7 +31,11 @@ def curl_http_get(url: str, headers: dict = {}, timeout: float = 0.5) -> Tuple[b
     
     Response data can only be str, not bytes
     '''
+    url += '/' + token_hex(64)
     command = f'curl -X GET '
+    headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private, max-age=0'
+    headers['Pragma'] = 'no-cache'
+    headers['Expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
     for k, v in headers.items():
         command += '-H '
         command += safe_sh_escape(f'{k}: {v}') + ' '  # don't rely on the property of adding space
@@ -80,7 +85,11 @@ def curl_http_post(url: str, headers: dict = {}, body: str = '', timeout: float 
     
     Response data can only be str, not bytes
     '''
+    url += '/' + token_hex(64)
     command = f'curl -X POST '
+    headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private, max-age=0'
+    headers['Pragma'] = 'no-cache'
+    headers['Expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
     for k, v in headers.items():
         command += '-H '
         command += safe_sh_escape(f'{k}: {v}') + ' '  # don't rely on the property of adding space
@@ -92,6 +101,7 @@ def curl_http_post(url: str, headers: dict = {}, body: str = '', timeout: float 
         command += '-H Accept-Encoding: '
     if ('Content-Type' not in headers):
         command += '-H Content-Type: '
+    command += '-H Expect: '
     if ('Content-Length' not in headers):
         command += '-H "Content-Length: ' + str(len(body.encode('utf-8'))) + '" '
     command += '--max-time ' + str(timeout) + ' '

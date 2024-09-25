@@ -172,10 +172,11 @@ class Request(BaseHTTPRequestHandler):
     
     def do_GET(self):
         path = self.path
-        if (path not in ('/get_update', '/get_data')):
+        if (path.startswith('/get_update') == False and path.startswith('/get_data') == False):
             self.send_response(404)
             self.send_header('Content-Length', 0)
             self.send_header('Connection', 'keep-alive')
+            self.send_cache_headers()
             self.end_headers()
             self.wfile.flush()
             return
@@ -183,16 +184,18 @@ class Request(BaseHTTPRequestHandler):
             self.send_response(400)
             self.send_header('Content-Length', 0)
             self.send_header('Connection', 'keep-alive')
+            self.send_cache_headers()
             self.end_headers()
             self.wfile.flush()
             return
-        if (path == '/get_data'):
+        if (path.startswith('/get_data')):
             data_id = int(self.headers['Data-Id'])
             if (data_id in forward_data_caches):
                 data = forward_data_caches[data_id]
                 self.send_response(200)
                 self.send_header('Content-Length', len(data))
                 self.send_header('Connection', 'keep-alive')
+                self.send_cache_headers()
                 self.end_headers()
                 self.wfile.write(data)
                 self.wfile.flush()
@@ -200,6 +203,7 @@ class Request(BaseHTTPRequestHandler):
             self.send_response(404)
             self.send_header('Content-Length', 0)
             self.send_header('Connection', 'keep-alive')
+            self.send_cache_headers()
             self.end_headers()
             self.wfile.flush()
             return
@@ -210,6 +214,7 @@ class Request(BaseHTTPRequestHandler):
             self.send_header('Content-Length', 0)
             self.send_header('Connection', 'keep-alive')
             self.send_header('Data-Id', data_id)
+            self.send_cache_headers()
             self.end_headers()
             self.wfile.flush()
             success_till = int(self.headers['Success-Till'])
@@ -221,6 +226,7 @@ class Request(BaseHTTPRequestHandler):
         self.send_header('Content-Length', len(data))
         self.send_header('Connection', 'keep-alive')
         self.send_header('Data-Id', data_id)
+        self.send_cache_headers()
         self.end_headers()
         self.wfile.write(data)
         self.wfile.flush()
@@ -231,10 +237,11 @@ class Request(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = self.path
-        if (path != '/send_backward'):
+        if (path.startswith('/send_backward') == False):
             self.send_response(404)
             self.send_header('Content-Length', 0)
             self.send_header('Connection', 'keep-alive')
+            self.send_cache_headers()
             self.end_headers()
             self.wfile.flush()
             return
@@ -242,6 +249,7 @@ class Request(BaseHTTPRequestHandler):
             self.send_response(400)
             self.send_header('Content-Length', 0)
             self.send_header('Connection', 'keep-alive')
+            self.send_cache_headers()
             self.end_headers()
             self.wfile.flush()
             return
@@ -256,12 +264,19 @@ class Request(BaseHTTPRequestHandler):
         self.send_header('Content-Length', 0)
         self.send_header('Connection', 'keep-alive')
         self.send_header('Buffer-Size', backward_buffer_size[connection_id])
+        self.send_cache_headers()
         self.end_headers()
         self.wfile.flush()
         backward_waiting_locks[connection_id].acquire()
         backward_waiting_blocks[connection_id][data_id] = data
         backward_waiting_locks[connection_id].release()
         process_backward_waiting(connection_id)
+        
+    def send_cache_headers(self):
+        self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0, private')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Expires', 'Thu, 01 Jan 1970 00:00:00 GMT')
+        
 
 
 server = ThreadingHTTPServer(('0.0.0.0', INNER_PORT), Request)
